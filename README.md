@@ -34,9 +34,7 @@ This project was originally based on [NAUBackup](https://github.com/NAUBackup/Vm
 9. Plan your backup strategy, such as weekly, bi-monthly, monthly frequencies. How many copies of each backup do you want to keep? How long do your backup configurations take to execute and does this fit in with your XenServer processing priorities?
 10. Execute your plan which typically involves setting up a XenServer crontab schedule, see later section.
 
-## Usage Examples
-
-### VmBackup.py Command Usage
+## VmBackup.py Command Usage
 
 #### Basic usage:
 
@@ -78,57 +76,6 @@ This project was originally based on [NAUBackup](https://github.com/NAUBackup/Vm
   		note: password filename is relative to current path or absolute path.
 
 
-#### Config-file parameter usage:
-
-	./VmBackup.py config
-	
-	Usage-config-file:
-
-	# Example config file for VmBackup.py
-
-	#### VmBackup config settings                ####
-	#### note: if any of these are not specified ####
-	#### then VmBackup uses default constants    ####
-
-	# Take Xen Pool DB backup: 0=No, 1=Yes (script default to 0=No)
-	pool_db_backup=0
-
-	# How many backups to keep for each vm (script default to 4)
-	max_backups=3
-
-	# Note: All directories must already exist and have the correct
-	# ownership and access protections set
-
-	#Backup Directory path (script default /mnt/VmBackup/exports)
-	backup_dir=/path/to/backupspace
-
-	#Log file Directory path
-	# (script default /mnt/VmBackup/status.log)
-	status_log=/path/to/backupspace/logs/status.log
-
-	# applicable if vdi-export is used
-	# vdi_export_format either raw or vhd (script default to raw)
-	vdi_export_format=raw
-
-	#### specific VMs backup settings ####
-
-	# exclude selected VMs from VM wildcards
-	exclude=PROD-WinDomainController
-	exclude=DEV-DestructiveTest 
-	exclude=TEMP-.*
-
-	# vm-export VM name-label of vm to backup. One per line - notice :max_backups override.
-	vm-export=my-vm-name
-	vm-export=my-second-vm
-	vm-export=my-third-vm:3
-
-	# special vdi-export - only backs up first disk. See README Documentation!
-	vdi-export=my-vm-name
-
-	# vm-export using VM prefix wildcard - notice DEV.* has :max_backups override.
-	vm-export=PROD.*
-	vm-export=DEV.*:2
-
 #### Some simple examples:
 
 	./VmBackup.py example
@@ -160,7 +107,7 @@ This project was originally based on [NAUBackup](https://github.com/NAUBackup/Vm
 	# use password file + config file
 	./VmBackup.py /root/VmBackup.pass monthly.cfg
 
-### Preview Example #1 - VmBackup.py with vm-selector
+#### Preview Example #1 - VmBackup.py with vm-selector
  
  Preview is useful after config-file changes for production crontab backups that will run later.
  
@@ -183,7 +130,7 @@ This project was originally based on [NAUBackup](https://github.com/NAUBackup/Vm
 2017-09-12-(23:51:59) - SUCCESS preview of parameters
 ```
 
-### Preview Example #2 - VmBackup.py with config-file
+#### Preview Example #2 - VmBackup.py with config-file
 
 **Example with configuration errors present:**
 ```
