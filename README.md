@@ -1,8 +1,6 @@
 # VmBackup
 XenServer Backup Script
 
->This project was originally based on [NAUBackup](https://github.com/NAUBackup/VmBackup) but has and will continue to grow into something new.
-
 ## Overview
  - The VmBackup.py script is run from a XenServer host and utilizes the native `xe vm-export` and `xe vdi-export` commands to backup both Linux and Windows VMs. 
  - The vm-export or vdi-export is run after a respective vm-snapshot or vdi-snapshot occurs, which allows for the export to execute while the VM is up and running.
@@ -296,3 +294,8 @@ Use the `xe vdi-import` command. See `xe help vdi-import` for parameter options.
 
 ### Pool Restore from the config pool_db_backup=1
 If config pool_db_backup=1 has been specified then a %BACKUP_DIR%/METADATA_host-name/pool_db_date-time.dump file will be created. Consult the Citrix XenServer Administrator's Guide chapter 8 and review sections that discuss the `xe pool-restore-database` command.
+
+## Attribution
+This project was adapted from [NAUBackup][NAUProject] but has and will continue to grow into something new.
+
+[NAUProject]: https://github.com/NAUBackup/VmBackup
