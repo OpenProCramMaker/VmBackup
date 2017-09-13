@@ -1217,24 +1217,24 @@ def usage_help():
     print sys.argv[0], ' <password|password-file> <config-file|vm-selector> [preview] [other optional params]'
     print
     print 'required params:'
-    print '  <password|password-file> - xenserver password or obscured password stored in password-file'
+    print '  <password|password-file> - XenServer password or obscured password stored in password-file'
     print '  <config-file|vm-selector> - several options:'
     print '    config-file - a common choice for production crontab execution'
-    print '    vm-selector - a single vm name or a vm reqular expression that defaults to vm-export'
-    print '      note with vm-selector then config defaults are set from VmBackup.py default constantants'
+    print '    vm-selector - a single vm name or a python regular expression that defaults to vm-export'
+    print '      note: with vm-selector the config defaults are used'
     print '    vm-export=vm-selector  - explicit vm-export'
     print '    vdi-export=vm-selector - explicit vdi-export'
     print
     print 'optional params:'
-    print '  [preview] - preview/validate VmBackup config parameters and xenserver password'
-    print '  [compress=True|False] - only for vm-export functions automatic compression (default: False)'
+    print '  [preview] - preview/validate VmBackup config parameters and XenServer password'
+    print '  [compress=True|False] - automatic compression of backup (only for vm-export function) (default: False)'
     print '  [ignore_extra_keys=True|False] - some config files may have extra params (default: False)'
     print
     print 'alternate form - create-password-file:'
     print sys.argv[0], ' <password> create-password-file=filename'
     print
     print '  create-password-file=filename - create an obscured password file with the specified password'
-    print '  note - password filename is relative to current path or absolute path.'
+    print '  note: password filename is relative to current path or absolute path.'
     print
 
 def usage_config_file():
