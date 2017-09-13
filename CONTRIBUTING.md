@@ -18,7 +18,7 @@ When creating bug reports, please make sure you provide the following:
 * The last version where the bug did not exist
 * A list of repeatable steps to replicate the bug
 
-All issues reported will have to be triaged and prioritised.
+All issues reported will have to be triaged and prioritized.
 
 Pull requests
 -------------
