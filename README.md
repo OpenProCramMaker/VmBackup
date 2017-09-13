@@ -60,7 +60,7 @@ XenServer Backup Script
   		<config-file|vm-selector> - several options:
     		config-file - a common choice for production crontab execution
     		vm-selector - a single vm name or vm prefix wildcard that defaults to vm-export
-    			note: with vm-selector then config defaults are set from VmBackup.py default constantants
+    			note: with vm-selector then config defaults are set from VmBackup.py default constants
     		vm-export=vm-selector  - explicit vm-export
     		vdi-export=vm-selector - explicit vdi-export
 
