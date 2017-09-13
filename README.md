@@ -45,35 +45,6 @@ XenServer Backup Script
 	  or: VmBackup.py config  - for config-file parameter usage
 	  or: VmBackup.py example - for some simple example usage
 
-
-#### Detail usage:
-
-	./VmBackup.py help
-  
-	Usage-help:
-	./VmBackup.py  <password|password-file> <config-file|vm-selector> [preview] [other optional params]
-
-	required params:
-  		<password|password-file> - xenserver password or obscured password stored in password-file
-  		<config-file|vm-selector> - several options:
-    		config-file - a common choice for production crontab execution
-    		vm-selector - a single vm name or vm prefix wildcard that defaults to vm-export
-    			note: with vm-selector then config defaults are set from VmBackup.py default constants
-    		vm-export=vm-selector  - explicit vm-export
-    		vdi-export=vm-selector - explicit vdi-export
-
-	optional params:
-  		[preview] - preview/validate VmBackup config parameters and XenServer password
-  		[compress=True|False] - automatic compression of backup (only for vm-export function) (default: False)
-  		[ignore_extra_keys=True|False] - some config files may have extra params (default: False)
-
-	alternate form - create-password-file:
-	./VmBackup.py  <password> create-password-file=filename
-
-  		create-password-file=filename - create an obscured password file with the specified password
-  		note: password filename is relative to current path or absolute path.
-
-
 #### Some simple examples:
 
 	./VmBackup.py example
@@ -105,9 +76,9 @@ XenServer Backup Script
 	# use password file + config file
 	./VmBackup.py /root/VmBackup.pass monthly.cfg
 
-#### Preview Example #1 - VmBackup.py with vm-selector
+#### Preview Example - VmBackup.py with vm-selector
  
- Preview is useful after config-file changes for production crontab backups that will run later.
+ Preview is useful after config-file changes for testing before going live in production.
  
 ```
 ./VmBackup.py password "Dev MYSQL" preview
@@ -124,79 +95,16 @@ XenServer Backup Script
 2017-09-12-(23:51:59) -   vdi-export (cnt)= 0
 2017-09-12-(23:51:59) -   vdi-export:
 2017-09-12-(23:51:59) -   vm-export (cnt)= 1
-2017-09-12-(23:51:59) -   vm-export: DEV MYSQL
+2017-09-12-(23:51:59) -   vm-export: Dev MYSQL
 2017-09-12-(23:51:59) - SUCCESS preview of parameters
 ```
-
-#### Preview Example #2 - VmBackup.py with config-file
-
-**Example with configuration errors present:**
-```
-cat weekend.cfg
-# Weekend VMs - with VM name errors
-max_backups=4
-backup_dir=/mnt/VmBackup/EXPORTS
-vdi-export=PROD-CentOS7.large-user-disks
-vm-export=PROD.*
-exclude=PROD-ubuntu12.1
-
-./VmBackup.py password weekend.cfg preview
-
-2017-09-12-(23:51:59) - ***WARNING - vm not found: exclude=PROD-ubuntu12.1
-2017-09-12-(23:51:59) - ***WARNING - vm not found: vdi-export=PROD-CentOS7.large-user-disks
-2017-09-12-(23:51:59) - VmBackup config loaded from: /mnt/VmBackup/weekly.cfg
-2017-09-12-(23:51:59) - VmBackup.py running with these settings:
-2017-09-12-(23:51:59) -   backup_dir        = /mnt/VmBackup/EXPORTS
-2017-09-12-(23:51:59) -   status_log        = /mnt/VmBackup/status.log
-2017-09-12-(23:51:59) -   compress          = False
-2017-09-12-(23:51:59) -   max_backups       = 4
-2017-09-12-(23:51:59) -   vdi_export_format = raw
-2017-09-12-(23:51:59) -   pool_db_backup    = 0
-2017-09-12-(23:51:59) -   exclude (cnt)= 0
-2017-09-12-(23:51:59) -   exclude:
-2017-09-12-(23:51:59) -   vdi-export (cnt)= 0
-2017-09-12-(23:51:59) -   vdi-export:
-2017-09-12-(23:51:59) -   vm-export (cnt)= 4
-2017-09-12-(23:51:59) -   vm-export: PROD-CentOS7-large-user-disks, PROD-ubuntu12-1, PROD-ubuntu14, PROD-WinSvr
-2017-09-12-(23:51:59) - SUCCESS preview of parameters  - WARNINGS found (see above)
-```
-
-**Example with configuration errors resolved:**
-
-```
-cat weekend.cfg
-# Weekend VMs - with no errors
-max_backups=4
-backup_dir=/mnt/VmBackup/EXPORTS
-vdi-export=PROD-CentOS7-large-user-disks
-vm-export=PROD.*
-exclude=PROD-ubuntu12-1
-
-./VmBackup.py password weekend.cfg preview
-2017-09-12-(23:51:59) - VmBackup config loaded from: /mnt/VmBackup/weekly.cfg
-2017-09-12-(23:51:59) - VmBackup.py running with these settings:
-2017-09-12-(23:51:59) -   backup_dir        = /mnt/VmBackup/EXPORTS
-2017-09-12-(23:51:59) -   status_log        = /mnt/VmBackup/status.log
-2017-09-12-(23:51:59) -   compress          = False
-2017-09-12-(23:51:59) -   max_backups       = 4
-2017-09-12-(23:51:59) -   vdi_export_format = raw
-2017-09-12-(23:51:59) -   pool_db_backup    = 0
-2017-09-12-(23:51:59) -   exclude (cnt)= 1
-2017-09-12-(23:51:59) -   exclude: PROD-ubuntu12-1
-2017-09-12-(23:51:59) -   vdi-export (cnt)= 1
-2017-09-12-(23:51:59) -   vdi-export: PROD-CentOS7-large-user-disks
-2017-09-12-(23:51:59) -   vm-export (cnt)= 2
-2017-09-12-(23:51:59) -   vm-export: PROD-ubuntu14, PROD-WinSvr
-2017-09-12-(23:51:59) - SUCCESS preview of parameters
-```
-
 ### A few words about Python REGEX syntax
 
 For the handling of wildcard VMs, VmBackup incorporates the native python regex library of regular expressions. **WARNING:** The syntax is slightly different from what is processed with the Linux family of grep commands. In python, a string followed by ```*``` causes the resulting regular expression to match zero or more repetitions of the preceding regular expression, as many repetitions as are possible. For example, ```ab*``` will match "a", "ab", or "a" followed by any number of "b" characters. Therefore, if you had PRD-a*, this will match PRD-a, PRD-aa, PRD-aaaSomething, as well as PRD- but _also_ PRD-Test, PRD-123 and anything else starting with PRD- since zero occurences of the "a" after the "-" are matched. To avoid this, PRD-a.* should be used, instead, indicating in this case PRD-a followed by any single character (".") zero or more("*") times.
 
 Note that the current implementation uses the re.match function which by design is expected to be front-anchored. You can explicitly preface a search string with the "^" operator, if desired, but it is already implied and the results will be the same.
 
-A VM name is considered to be a simple (non-wildcard) name, provided that it contains only combinations of any of the following: letters (upper as well as lower case), numerals 0 through 9, the space character, hyphens (dashes), and underscore characters. These will _not be handled using regex operations!_
+A VM name is considered to be a simple (non-wildcard) name, provided that it contains only combinations of any of the following: letters (upper as well as lower case), numerals 0 through 9, the space character, hyphens (dashes), and underscore characters. These will _not be handled using regex operations_!
 
 Here are some examples of regex selections. Note that if a vdi-export definition is encoutered in the configuration file before a matching vm-export definition, the vdi-export will take precedence. Recall also that exclude definitions will apply before all vdi-export and vm-export rules.
 
