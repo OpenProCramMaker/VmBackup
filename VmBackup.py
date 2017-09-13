@@ -37,8 +37,8 @@ DEFAULT_POOL_DB_BACKUP = 0
 DEFAULT_MAX_BACKUPS = 4
 DEFAULT_VDI_EXPORT_FORMAT = 'raw' # xe vdi-export options: 'raw' or 'vhd'
 DEFAULT_BACKUP_DIR = '/mnt/VmBackup/exports'
-## DEFAULT_BACKUP_DIR = '\mnt\VmBackup\exports' # alt for CIFS mounts
-# note - some NAS file servers may fail with ':', so change to your desired format
+# DEFAULT_BACKUP_DIR = '\mnt\VmBackup\exports' # alt for CIFS mounts
+# Note: some NAS file servers may fail with ':', so change to your desired format
 BACKUP_DIR_PATTERN = '%s/backup-%04d-%02d-%02d-(%02d:%02d:%02d)'
 DEFAULT_STATUS_LOG = '/mnt/VmBackup/status.log'
 
