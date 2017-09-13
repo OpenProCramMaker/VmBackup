@@ -1,6 +1,8 @@
 # VmBackup
 XenServer Backup Script
 
+This project is originally based on NAUBackup<https://github.com/NAUBackup/VmBackup> but has and will continue to grow into something new.
+
 ## Overview
  - The VmBackup.py script is run from a XenServer host and utilizes the native `xe vm-export` and `xe vdi-export` commands to backup both Linux and Windows VMs. 
  - The vm-export or vdi-export is run after a respective vm-snapshot or vdi-snapshot occurs, which allows for the export to execute while the VM is up and running.
