@@ -14,9 +14,15 @@ as there may be workarounds or ideas available.
 
 When creating bug reports, please make sure you provide the following:
 
-* The current version where the bug first appeared
-* The last version where the bug did not exist
+* The current VmBackup and/or XenServer version where the bug first appeared
+* The last VmBackup and/or XenServer version where the bug did not exist
 * A list of repeatable steps to replicate the bug
+
+When creating feature requests, please make sure you provide the following:
+
+* The problem you are trying to solve
+* Any ideas you have as to implementing the new feature (if any)
+* Why you think this feature would be useful to the community at large (in detail)
 
 All issues reported will have to be triaged and prioritized.
 
