@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# VmBackup - a XenServer Backup Script
+# VmBackup - XenServer Backup Script
 # Copyright (C) 2017  OnyxFire, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
