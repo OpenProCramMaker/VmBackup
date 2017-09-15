@@ -19,10 +19,11 @@
 # See README for usage and installation documentation.
 # See example.cfg for config file example usage.
 
-# Usage w/ vm name for single vm backup, which runs vm-export by default:
-#    ./VmBackup.py <password> <vm-name>
+# Usage w/ vm name and optional selector, which runs vm-export by default:
+#    ./VmBackup.py <password> <vm-name|regex>
+#    ./VmBackup.py <password> vdi-export=<vm-name|regex>
 
-# Usage w/ config file for multiple vm backups, where you can specify either vm-export or vdi-export:
+# Usage w/ config file where you can specify additional options and multiple selectors for backup:
 #    ./VmBackup.py <password> <config-file-path>
 
 import sys, time, os, datetime, subprocess, re, shutil, XenAPI, smtplib, base64, socket
