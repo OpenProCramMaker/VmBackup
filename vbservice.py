@@ -208,15 +208,6 @@ class XenLocalService(Service):
 			self.logger.warning('(!) No VMs selected for vdi-export')
 			warning_cnt += 1
 
-		# Check remaining disk space for backup directory against threshold
-		self.logger.info('-> Checking backup space')
-		backup_space_remaining = self.h.get_remaining_space(config['backup_dir'])
-		self.logger.debug('(i) Backup space remaining "{}": {}%'.format(config['backup_dir'], backup_space_remaining))
-		if backup_space_remaining < config['space_threshold']:
-			self.logger.critical('(!) Space remaining is below threshold: {}%'.format(backup_space_remaining))
-			error_cnt += 1
-			vms = []
-
 		for value in vms:
 			begin_time = datetime.datetime.now()
 			values = value.split(':')
@@ -233,6 +224,15 @@ class XenLocalService(Service):
 
 			self.logger.info('* Begin {} at {}'.format(vm_name, self.h.get_time_string(begin_time)))
 			self.logger.debug('(i) Name:{} Max-Backups:{} Disks:{}'.format(vm_name, vm_backups, vdi_disks))
+			
+			# Check remaining disk space for backup directory against threshold
+			self.logger.info('-> Checking backup space')
+			backup_space_remaining = self.h.get_remaining_space(config['backup_dir'])
+			self.logger.debug('(i) Backup space remaining "{}": {}%'.format(config['backup_dir'], backup_space_remaining))
+			if backup_space_remaining < config['space_threshold']:
+				self.logger.critical('(!) Space remaining is below threshold: {}%'.format(backup_space_remaining))
+				error_cnt += 1
+				break
 
 			# Fail if no disks selected for backup
 			if not vdi_disks:
@@ -270,6 +270,15 @@ class XenLocalService(Service):
 			for disk in vdi_disks:
 				vdi_start = datetime.datetime.now()
 				self.logger.info('Begin {} at {}'.format(disk, self.h.get_time_string(vdi_start)))
+				
+				# Check remaining disk space for backup directory against threshold
+				self.logger.info('-> Checking backup space')
+				backup_space_remaining = self.h.get_remaining_space(config['backup_dir'])
+				self.logger.debug('(i) Backup space remaining "{}": {}%'.format(config['backup_dir'], backup_space_remaining))
+				if backup_space_remaining < config['space_threshold']:
+					self.logger.critical('(!) Space remaining is below threshold: {}%'.format(backup_space_remaining))
+					error_cnt += 1
+					break
 				
 				# Set backup files
 				base = '{}/backup_{}_{}'.format(vm_backup_dir, disk, self.h.get_date_string())
@@ -403,15 +412,6 @@ class XenLocalService(Service):
 			self.logger.warning('(!) No VMs selected for vm-export')
 			warning_cnt += 1
 
-		# Check remaining disk space for backup directory against threshold
-		self.logger.info('-> Checking backup space')
-		backup_space_remaining = self.h.get_remaining_space(config['backup_dir'])
-		self.logger.debug('(i) Backup space remaining: {}%'.format(backup_space_remaining))
-		if backup_space_remaining < config['space_threshold']:
-			self.logger.critical('(!) Space remaining is below threshold: {}%'.format(backup_space_remaining))
-			error_cnt += 1
-			vms = []
-
 		for value in vms:
 			begin_time = datetime.datetime.now()
 			values = value.split(':')
@@ -423,6 +423,15 @@ class XenLocalService(Service):
 
 			self.logger.info('* Begin {} at {}'.format(vm_name, self.h.get_time_string()))
 			self.logger.debug('(i) Name:{} Max-Backups:{}'.format(vm_name, vm_backups))
+
+			# Check remaining disk space for backup directory against threshold
+			self.logger.info('-> Checking backup space')
+			backup_space_remaining = self.h.get_remaining_space(config['backup_dir'])
+			self.logger.debug('(i) Backup space remaining: {}%'.format(backup_space_remaining))
+			if backup_space_remaining < config['space_threshold']:
+				self.logger.critical('(!) Space remaining is below threshold: {}%'.format(backup_space_remaining))
+				error_cnt += 1
+				break
 
 			# Get VM by name for backup
 			vm_object = self.get_vm_by_name(vm_name)
