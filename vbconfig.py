@@ -52,7 +52,7 @@ class Configurator(object):
 		conf_parser.set('vmbackup', 'pool_backup', 'False')
 		conf_parser.set('vmbackup', 'host_backup', 'False')
 		log.debug('(i) Reading updates to config from configuration files')
-		conf_parser.read(['etc/vmbackup.cfg', '/etc/vmbackup.cfg', expanduser('~/vmbackup.cfg')])
+		conf_parser.read(['/mnt/VmBackup/etc/vmbackup.cfg', '/etc/vmbackup.cfg', expanduser('~/vmbackup.cfg')])
 		if args.config:
 			log.debug('(i) Reading configuration file provided on command-line')
 			conf_parser.read([args.config])
@@ -110,7 +110,7 @@ class Configurator(object):
 					"class": "logging.handlers.RotatingFileHandler",
 					"level": "WARNING",
 					"formatter": "detailed",
-					"filename": "logs/vmbackup.log",
+					"filename": "/mnt/VmBackup/logs/vmbackup.log",
 					"maxBytes": 10485760,
 					"backupCount": 20,
 					"encoding": "utf8"
@@ -119,7 +119,7 @@ class Configurator(object):
 					"class": "logging.handlers.RotatingFileHandler",
 					"level": "DEBUG",
 					"formatter": "detailed",
-					"filename": "logs/debug.log",
+					"filename": "/mnt/VmBackup/logs/debug.log",
 					"maxBytes": 10485760,
 					"backupCount": 20,
 					"encoding": "utf8"
@@ -138,7 +138,7 @@ class Configurator(object):
 			}
 		}
 
-		cfg_file = 'etc/logging.json'
+		cfg_file = '/mnt/VmBackup/etc/logging.json'
 		value = getenv('LOG_CFG', None)
 		if value:
 			debug('(i) Logging config environment variable set -> {}'.format(value))
