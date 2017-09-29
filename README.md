@@ -19,9 +19,9 @@ XenServer Backup
    - /mnt/VmBackup/etc - Contains optional configuration file `vmbackup.cfg` for overriding default configuration and optional `logging.json` for overriding default logging settings
    - /mnt/VmBackup/logs - Contains VmBackup log files `vmbackup.log` and `debug.log`.
 4. Download and extract the latest release to your execution location, such as `/mnt/VmBackup`
-5. Inspect and customize certain options in the `/mnt/VmBackup/etc/vmbackup.cfg`, `/etc/vmbackup.cfg`, and/or `~/vmbackup.cfg` as desired. `/mnt/VmBackup/etc/vmbackup.example` is heavily commented to help you understand the options. `/mnt/VmBackup/etc/logging.example` shows the default logging configuration.
+5. Inspect and customize certain options in the `%base_dir%/etc/vmbackup.cfg`, `/etc/vmbackup.cfg`, and/or `~/vmbackup.cfg` as desired. `%base_dir%/etc/vmbackup.example` is heavily commented to help you understand the options. `%base_dir%/etc/logging.example` shows the default logging configuration.
    - The configuration files are read in the following order with a "last match wins" convention
-     - `/mnt/VmBackup/etc/vmbackup.cfg`
+     - `%base_dir%/etc/vmbackup.cfg`
      - `/etc/vmbackup.cfg`
      - `~/vmbackup.cfg`
      - Command-line specified config file using `-c <file>` or `--config <file>` option

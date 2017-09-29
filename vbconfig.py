@@ -27,22 +27,23 @@ from os.path import exists, expanduser
 
 class Configurator(object):
  
-	def __init__(self, helper):
+	def __init__(self, helper, args):
 		self.h = helper
+		if args.base_dir:
+			debug('(i) Updating base_dir from command-line args')
+			self.base_dir = args.base_dir
+		else:
+			self.base_dir = '/mnt/VmBackup'
 		self._setup_logging()
 		self.logger = getLogger('vmbackup.config')
 
-	def configure(self, args=''):
+	def configure(self):
 		log = self.logger
 		log.debug('(i) Setting defaults for configuration')
 		conf_parser = ConfigParser.SafeConfigParser()
 		log.debug('(i) Adding vmbackup section')
 		conf_parser.add_section('vmbackup')
-		if args.base_dir:
-			log.debug('(i) Updating base_dir from command-line args')
-			conf_parser.set('vmbackup', 'base_dir', args.base_dir)
-		else:
-			conf_parser.set('vmbackup', 'base_dir', '/mnt/VmBackup')
+		conf_parser.set('vmbackup', 'base_dir', self.base_dir)
 		conf_parser.set('vmbackup', 'share_type', 'nfs')
 		conf_parser.set('vmbackup', 'backup_dir', '%(base_dir)s/exports')
 		conf_parser.set('vmbackup', 'space_threshold', '20')
@@ -52,7 +53,7 @@ class Configurator(object):
 		conf_parser.set('vmbackup', 'pool_backup', 'False')
 		conf_parser.set('vmbackup', 'host_backup', 'False')
 		log.debug('(i) Reading updates to config from configuration files')
-		conf_parser.read(['/mnt/VmBackup/etc/vmbackup.cfg', '/etc/vmbackup.cfg', expanduser('~/vmbackup.cfg')])
+		conf_parser.read(['{}/etc/vmbackup.cfg'.format(self.base_dir), '/etc/vmbackup.cfg', expanduser('~/vmbackup.cfg')])
 		if args.config:
 			log.debug('(i) Reading configuration file provided on command-line')
 			conf_parser.read([args.config])
@@ -64,13 +65,12 @@ class Configurator(object):
 		log.debug('(i) Sanitizing configuration options')
 		options = {}
 
-		# vmbackup Settings
-		options['base_dir'] = parser.get('vmbackup', 'base_dir')
-		options['share_type'] = parser.get('vmbackup', 'share_type')
+		# VmBackup Settings
 		if options['share_type'] == 'smb':
 			options['backup_dir'] = parser.get('vmbackup', 'backup_dir').replace("/", "\\")
 		else:
 			options['backup_dir'] =  parser.get('vmbackup', 'backup_dir')
+		options['share_type'] = parser.get('vmbackup', 'share_type')
 		options['space_threshold'] = parser.getint('vmbackup', 'space_threshold')
 		options['max_backups'] = parser.getint('vmbackup', 'max_backups')
 		options['compress'] = parser.getboolean('vmbackup', 'compress')
@@ -83,7 +83,6 @@ class Configurator(object):
 		options['vdi_exports'] = parser.get('vmbackup', 'vdi_exports').split(',') if parser.has_option('vmbackup', 'vdi_exports') else []
 		options['excludes'] = parser.get('vmbackup', 'excludes').split(',') if parser.has_option('vmbackup', 'excludes') else []
 		log.debug('(i) Done sanitizing options')
-		log.debug('(i) Returning sanitized options')
 		return options
 
 	def _setup_logging(self):
@@ -110,7 +109,7 @@ class Configurator(object):
 					"class": "logging.handlers.RotatingFileHandler",
 					"level": "WARNING",
 					"formatter": "detailed",
-					"filename": "/mnt/VmBackup/logs/vmbackup.log",
+					"filename": "{}/logs/vmbackup.log".format(self.base_dir),
 					"maxBytes": 10485760,
 					"backupCount": 20,
 					"encoding": "utf8"
@@ -119,7 +118,7 @@ class Configurator(object):
 					"class": "logging.handlers.RotatingFileHandler",
 					"level": "DEBUG",
 					"formatter": "detailed",
-					"filename": "/mnt/VmBackup/logs/debug.log",
+					"filename": "{}/logs/debug.log".format(self.base_dir),
 					"maxBytes": 10485760,
 					"backupCount": 20,
 					"encoding": "utf8"
@@ -138,7 +137,7 @@ class Configurator(object):
 			}
 		}
 
-		cfg_file = '/mnt/VmBackup/etc/logging.json'
+		cfg_file = '{}/etc/logging.json'.format(self.base_dir)
 		value = getenv('LOG_CFG', None)
 		if value:
 			debug('(i) Logging config environment variable set -> {}'.format(value))

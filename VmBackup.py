@@ -97,8 +97,8 @@ def setup():
 		help='Base directory (Default: /mnt/VmBackup)' )
 	args, remaining_argv = parent_parser.parse_known_args()
 	
-	cfg = vbconfig.Configurator(h)
-	options = cfg.configure(args)
+	cfg = vbconfig.Configurator(h, args)
+	options = cfg.configure()
 	
 	current_year = datetime.datetime.now().year
 	copyright = 'Copyright (C) {}  OnyxFire, Inc. <https://onyxfireinc.com>'.format(current_year)
