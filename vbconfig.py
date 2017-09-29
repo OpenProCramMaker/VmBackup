@@ -71,11 +71,11 @@ class Configurator(object):
 		options = {}
 
 		# VmBackup Settings
+		options['share_type'] = parser.get('vmbackup', 'share_type')
 		if options['share_type'] == 'smb':
 			options['backup_dir'] = parser.get('vmbackup', 'backup_dir').replace("/", "\\")
 		else:
 			options['backup_dir'] =  parser.get('vmbackup', 'backup_dir')
-		options['share_type'] = parser.get('vmbackup', 'share_type')
 		options['space_threshold'] = parser.getint('vmbackup', 'space_threshold')
 		options['max_backups'] = parser.getint('vmbackup', 'max_backups')
 		options['compress'] = parser.getboolean('vmbackup', 'compress')
