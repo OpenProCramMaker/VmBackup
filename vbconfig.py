@@ -34,6 +34,11 @@ class Configurator(object):
 			self.base_dir = args.base_dir
 		else:
 			self.base_dir = '/mnt/VmBackup'
+		if args.config:
+			debug('(i) Updating config with file: {}'.format(args.config))
+			self.config_file = args.config
+		else:
+			self.config_file = False
 		self._setup_logging()
 		self.logger = getLogger('vmbackup.config')
 
@@ -54,9 +59,9 @@ class Configurator(object):
 		conf_parser.set('vmbackup', 'host_backup', 'False')
 		log.debug('(i) Reading updates to config from configuration files')
 		conf_parser.read(['{}/etc/vmbackup.cfg'.format(self.base_dir), '/etc/vmbackup.cfg', expanduser('~/vmbackup.cfg')])
-		if args.config:
+		if self.config_file:
 			log.debug('(i) Reading configuration file provided on command-line')
-			conf_parser.read([args.config])
+			conf_parser.read([self.config_file])
 		log.debug('(i) Done setting configuration from files')
 		return self._sanitize_options(conf_parser)
 
