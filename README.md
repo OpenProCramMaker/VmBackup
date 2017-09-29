@@ -16,10 +16,10 @@ XenServer Backup
 2. For all of the XenServers in a given pool, mount the new share at your desired filesystem location (default location is `/mnt/VmBackup`). 
 3. Finish creating a share directory structure that meets your needs. Here are the VmBackup sub-directories:
    - /mnt/VmBackup/exports - Contains all VM backups (reconfigurable with `backup_dir` option)
-   - /mnt/VmBackup/etc - Contains optional configuration file for overriding defaults `vmbackup.cfg` and `logging.json` for configuring logging
+   - /mnt/VmBackup/etc - Contains optional configuration file `vmbackup.cfg` for overriding default configuration and optional `logging.json` for overriding default logging settings
    - /mnt/VmBackup/logs - Contains VmBackup log files `vmbackup.log` and `debug.log`.
 4. Download and extract the latest release to your execution location, such as `/mnt/VmBackup`
-5. Inspect and customize certain options in the `/mnt/VmBackup/etc/vmbackup.cfg`, `/etc/vmbackup.cfg`, and/or `~/vmbackup.cfg` as desired. `%BASE_DIRECTORY%/etc/vmbackup.example` is heavily commented to help you understand the options.
+5. Inspect and customize certain options in the `/mnt/VmBackup/etc/vmbackup.cfg`, `/etc/vmbackup.cfg`, and/or `~/vmbackup.cfg` as desired. `/mnt/VmBackup/etc/vmbackup.example` is heavily commented to help you understand the options. `/mnt/VmBackup/etc/logging.example` shows the default logging configuration.
    - The configuration files are read in the following order with a "last match wins" convention
      - `/mnt/VmBackup/etc/vmbackup.cfg`
      - `/etc/vmbackup.cfg`
