@@ -206,15 +206,14 @@ class Helper():
 			if len(values) > 1:
 				try:
 					tmp_max = int(values[1])
+					if isinstance(tmp_max, (int, long)) and (tmp_max == -1 or tmp_max > 0):
+						vm_backups = values[1]
+						if len(values) == 3:
+							vdi_disks = values[2]
+					else:
+						self.logger.warning('(!) max_backups out of range: {}'.format(values[1]))
 				except ValueError as e:
 					self.logger.warning('(!) max_backups non-integer: {}'.format(e))
-					tmp_max = ''
-				if isinstance(tmp_max, (int, long)) and (tmp_max == -1 or tmp_max > 0):
-					vm_backups = values[1]
-					if len(values) == 3:
-						vdi_disks = values[2]
-				else:
-					self.logger.warning('(!) max_backups out of range: {}'.format(values[1]))
 			no_match = []
 
 			# Warn if name/regex not valid and jump to next item in list

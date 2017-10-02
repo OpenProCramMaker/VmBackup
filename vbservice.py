@@ -197,8 +197,10 @@ class XenLocalService(Service):
 				self.logger.info('>> Error <<')
 
 	def backup_vdi(self, vms, config):
-		self.logger.info('**** VDI-EXPORT ****')
 		begin_time = datetime.datetime.now()
+		self.logger.info('*************************')
+		self.logger.info('** VDI-EXPORT ({})'.format(self.h.get_time_string(begin_time)))
+		self.logger.info('*************************')
 		success_cnt = 0
 		error_cnt = 0
 		warning_cnt = 0
@@ -209,8 +211,6 @@ class XenLocalService(Service):
 		if vms == []:
 			self.logger.warning('(!) No VMs selected for vdi-export')
 			warning_cnt += 1
-
-		self.logger.info('Begin at {}'.format(self.h.get_time_string(begin_time)))
 
 		for value in vms:
 			vm_start = datetime.datetime.now()
@@ -225,7 +225,7 @@ class XenLocalService(Service):
 				vdi_disks[:] = []
 				vdi_disks += values[2].split(';')
 
-			self.logger.info('* Begin {} at {}'.format(vm_name, self.h.get_time_string(vm_start)))
+			self.logger.info('{} started at {}'.format(vm_name, self.h.get_time_string(vm_start)))
 			self.logger.debug('(i) Name:{} Max-Backups:{} Disks:{}'.format(vm_name, vm_backups, vdi_disks))
 			
 			# Check remaining disk space for backup directory against threshold
@@ -272,7 +272,7 @@ class XenLocalService(Service):
 
 			for disk in vdi_disks:
 				vdi_start = datetime.datetime.now()
-				self.logger.info('>> Begin {} at {}'.format(disk, self.h.get_time_string(vdi_start)))
+				self.logger.info('* Begin {} at {}'.format(disk, self.h.get_time_string(vdi_start)))
 				
 				# Check remaining disk space for backup directory against threshold
 				self.logger.info('-> Checking backup space')
@@ -379,18 +379,19 @@ class XenLocalService(Service):
 				vdi_end = datetime.datetime.now()
 				elapsed = self.h.get_elapsed(vdi_start, vdi_end)
 				backup_file_size = self.h.get_file_size(backup_file)
-				self.logger.info('>> End {} at {} - time:{} size:{}'.format(disk, self.h.get_time_string(vdi_end), elapsed, backup_file_size))
+				self.logger.info('* End {} at {} - time:{} size:{}'.format(disk, self.h.get_time_string(vdi_end), elapsed, backup_file_size))
 				success_cnt += 1
 
 			# VM Summary
 			vm_end = datetime.datetime.now()
 			elapsed = self.h.get_elapsed(vm_start, vm_end)
-			self.logger.info('* {} completed at {} - time:{}'.format(vm_name, self.h.get_time_string(vm_end), elapsed))
+			self.logger.info('{} completed at {} - time:{}'.format(vm_name, self.h.get_time_string(vm_end), elapsed))
 
 		# VDI-Export Summary
 		end_time = datetime.datetime.now()
 		elapsed = self.h.get_elapsed(begin_time, end_time)
-		self.logger.info('**** VDI-EXPORT completed at {} - time:{} ****'.format(vm_name, self.h.get_time_string(end_time), elapsed))
+		self.logger.info('*************************')
+		self.logger.info('VDI-EXPORT completed at {} - time:{}'.format(self.h.get_time_string(end_time), elapsed))
 
 		# Report summary status
 		self.logger.info('Summary - S:{} W:{} E:{}'.format(success_cnt, warning_cnt, error_cnt))
@@ -409,8 +410,10 @@ class XenLocalService(Service):
 			self.logger.info('>> Unknown <<')
 
 	def backup_vm(self, vms, config):
-		self.logger.info('**** VM-EXPORT ****')
 		begin_time = datetime.datetime.now()
+		self.logger.info('************************')
+		self.logger.info('** VM-EXPORT ({})'.format(self.h.get_time_string(begin_time)))
+		self.logger.info('************************')
 		success_cnt = 0
 		error_cnt = 0
 		warning_cnt = 0
@@ -422,8 +425,6 @@ class XenLocalService(Service):
 			self.logger.warning('(!) No VMs selected for vm-export')
 			warning_cnt += 1
 
-		self.logger.info('Begin at {}'.format(self.h.get_time_string(begin_time)))
-
 		for value in vms:
 			vm_start = datetime.datetime.now()
 			values = value.split(':')
@@ -433,7 +434,7 @@ class XenLocalService(Service):
 				if not values[1] == -1:
 					vm_backups = int(values[1])
 
-			self.logger.info('* Begin {} at {}'.format(vm_name, self.h.get_time_string(vm_start)))
+			self.logger.info('{} started at {}'.format(vm_name, self.h.get_time_string(vm_start)))
 			self.logger.debug('(i) Name:{} Max-Backups:{}'.format(vm_name, vm_backups))
 
 			# Check remaining disk space for backup directory against threshold
@@ -578,13 +579,14 @@ class XenLocalService(Service):
 			vm_end = datetime.datetime.now()
 			elapsed = self.h.get_elapsed(vm_start, vm_end)
 			backup_file_size = self.h.get_file_size(backup_file)
-			self.logger.info('End {} at {} - time:{} size:{}'.format(vm_name, self.h.get_time_string(vm_end), elapsed, backup_file_size))
+			self.logger.info('{} completed at {} - time:{}'.format(vm_name, self.h.get_time_string(vm_end), elapsed))
 			success_cnt += 1
 
 		# VM-Export Summary
 		end_time = datetime.datetime.now()
 		elapsed = self.h.get_elapsed(begin_time, end_time)
-		self.logger.info('**** VM-EXPORT completed at {} - time:{} ****'.format(vm_name, self.h.get_time_string(end_time), elapsed))
+		self.logger.info('*************************')
+		self.logger.info('VM-EXPORT completed at {} - time:{}'.format(self.h.get_time_string(end_time), elapsed))
 
 		# Report summary status
 		self.logger.info('Summary - S:{} W:{} E:{}'.format(success_cnt, warning_cnt, error_cnt))

@@ -25,9 +25,10 @@ version = '1.0.0'
 
 def main():
 	server_name = h.get_server_name()
+	logger.info('----------------------------')
 	logger.info('VmBackup running on {}'.format(server_name))
 	logger.info('Started: {}'.format(h.get_date_string(False)))
-	logger.info('--------------------------------')
+	logger.info('----------------------------')
 	logger.info('')
 	logger.info('=====================================')
 	logger.info('Gathering Pool Information ({})'.format(h.get_time_string()))
