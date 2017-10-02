@@ -179,7 +179,7 @@ NOTE: XenServer uses ssmtp to send emails from the system for both XenServer ale
 #authUser=username
 #authPass=password
 # Mail server and port to send emails to
-mailhub=<mailserver dns or ip>:<port>
+mailhub=<dns-name or ip>:<port>
 # The following three lines allow you to encrypt the emails and authentication when sending emails from XenServer
 UseTLS=YES
 UseSTARTTLS=YES
