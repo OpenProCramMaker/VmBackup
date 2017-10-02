@@ -28,6 +28,23 @@ class DataAPI(object):
 		self.session = session
 		self.sx = self.session.xenapi
 
+	def get_api_version(self):
+		pool = self.sx.pool.get_all()[0]
+		host = self.sx.pool.get_master(pool)
+		major_version = self.sx.host.get_API_version_major(host)
+		minor_version = self.sx.host.get_API_version_minor(host)
+		api_version = '{}.{}'.format(major_version, minor_version)
+		self.logger.debug('(i) API version: {}'.format(api_version))
+		return api_version
+
+	def get_master(self):
+		pool = self.sx.pool.get_all()[0]
+		host = self.sx.pool.get_master(pool)
+		host_record = self.sx.host.get_record(host)
+		master = host_record['address']
+		self.logger.debug('(i) Master address: {}'.format(master))
+		return master
+
 	def get_network_record(self, network):
 		self.logger.debug('(i) Getting record for Network: {}'.format(network))
 		network_record = self.sx.network.get_record(network)
@@ -93,8 +110,13 @@ class XenRemote(DataAPI):
 	def __init__(self, username, password, url):
 		self.username = username
 		self.password = password
-		self.url = url
-		session = XenAPI.Session('https:)//' + self.url)
+		try:
+			session = XenAPI.Session('https://' + url)
+		except XenAPI.Failure as e:
+			if e.details[0] == 'HOST_IS_SLAVE':
+				session = XenAPI.Session('https://' + e.details[1])
+			else:
+				raise
 		super(self.__class__, self).__init__(session)
 
 	def login(self):
