@@ -231,7 +231,7 @@ Consult the Citrix XenServer Administrator's Guide chapter 8 and review sections
 
 ### Host Backup Restore
 Use the `xe host-restore` command. See `xe help host-restore` for parameter options.  
-   * If `host_backup` option has been specified then a %BACKUP_DIR%/HOSTS/hosts_[date]-[time].xbk file will be created.
+   * If `host_backup` option has been specified then a %BACKUP_DIR%/HOSTS/[hostname]_[date]-[time].xbk file will be created for each host in the pool.
 
 ## Attribution
 This project was adapted from [NAUBackup][NAUProject] but has and will continue to grow into something new.
