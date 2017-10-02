@@ -157,44 +157,117 @@ class XenLocalService(Service):
 		self._xe_path = '/opt/xensource/bin'
 		super(self.__class__, self).__init__(helper, vbdata.XenLocal())
 
-	def backup_hosts(self, backup_dir, enabled_only=True):
-		self.logger.info('** HOST(dom0) BACKUP **')
-		if not self.is_master():
-			self.logger.error('(!) Unable to backup hosts: Must be run on master.')
-		else:
-			path = join(backup_dir, 'HOSTS')
-			if self.h.verify_path(path):
-				backup_file = '{}/hosts_{}.xbk'.format(path, self.h.get_date_string())
-				params = ''
-				if enabled_only:
-					params = 'enabled=true'
-				cmd = 'host-backup file-name="{}" --multiple {}'.format(backup_file, params)
-				if not self._run_xe_cmd(cmd):
-					self.logger.error('(!) Failed to backup hosts')
-					self.logger.info('>> Error <<')
-				else:
-					self.logger.info('>> Success <<')
-			else:
-				self.logger.critical('(!) Unable to create backup directory: {}'.format(path))
-				self.logger.info('>> Error <<')
+	def backup_hosts(self, max, backup_dir, enabled_only=True):
+		begin_time = datetime.datetime.now()
+		self.logger.info('*************************')
+		self.logger.info('** HOST-BACKUP ({})'.format(self.h.get_time_string(begin_time)))
+		self.logger.info('*************************')
+		success_cnt = 0
+		error_cnt = 0
+		warning_cnt = 0
 
-	def backup_pool_db(self, backup_dir):
-		self.logger.info('** POOL DB BACKUP **')
+		path = join(backup_dir, 'HOSTS')
+		if self.h.verify_path(path):
+			backup_file = '{}/hosts_{}.xbk'.format(path, self.h.get_date_string())
+			self.logger.debug('(i) Backup file: {}'.format(backup_file))
+			
+			# Set parameters
+			params = ''
+			if enabled_only:
+				params = 'enabled=true'
+
+			# Backup hosts in pool
+			self.logger.debug('(i) Backup params: {}'.format(params))
+			self.logger.info('-> Backing up Hosts')
+			cmd = 'host-backup file-name="{}" --multiple {}'.format(backup_file, params)
+			if not self._run_xe_cmd(cmd):
+				self.logger.error('(!) Failed to backup hosts')
+				error_cnt += 1
+			else:
+				success_cnt += 1
+
+				# Remove old backups based on retention
+				self.logger.info('-> Rotating backups')
+				if not self.h.rotate_backups(max, path, False):
+					self.logger.warning('(!) Failed to cleanup old backups')
+					# Non-fatal so only warning as backup completed but cleanup failed
+					warning_cnt += 1
+		else:
+			self.logger.critical('(!) Unable to create backup directory: {}'.format(path))
+			error_cnt += 1
+
+		# Host Backup Summary
+		end_time = datetime.datetime.now()
+		elapsed = self.h.get_elapsed(begin_time, end_time)
+		backup_file_size = self.h.get_file_size(backup_file)
+		self.logger.info('*************************')
+		self.logger.info('HOST-BACKUP completed at {} - time:{} size:{}'.format(self.h.get_time_string(end_time), elapsed, backup_file_size))
+
+		# Report summary status
+		if warning_cnt > 0 and success_cnt > 0:
+			self.logger.info('>> Success with Warning <<')
+		elif error_cnt > 0:
+			self.logger.info('>> Error <<')
+		elif success_cnt > 0:
+			self.logger.info('>> Success <<')
+		else:
+			# Should never occur
+			self.logger.info('>> Unknown <<')
+
+	def backup_pool_db(self, max, backup_dir):
+		begin_time = datetime.datetime.now()
+		self.logger.info('****************************')
+		self.logger.info('** POOL-DB-BACKUP ({})'.format(self.h.get_time_string(begin_time)))
+		self.logger.info('****************************')
+		success_cnt = 0
+		error_cnt = 0
+		warning_cnt = 0
+
 		if not self.is_master():
 			self.logger.error('(!) Unable to backup pool db: Must be run on master.')
+			error_cnt += 1
 		else:
 			path = join(backup_dir, 'POOL_DB')
 			if self.h.verify_path(path):
 				backup_file = '{}/metadata_{}.db'.format(path, self.h.get_date_string())
+				self.logger.debug('(i) Backup file: {}'.format(backup_file))
+
+				# Backing up pool DB
+				self.logger.info('-> Backing up pool db')
 				cmd = 'pool-dump-database file-name="{}"'.format(backup_file)
 				if not self._run_xe_cmd(cmd):
 					self.logger.error('(!) Failed to backup pool db')
-					self.logger.info('>> Error <<')
+					error_cnt += 1
 				else:
-					self.logger.info('>> Success <<')
+					success_cnt += 1
+
+					# Remove old backups based on retention
+					self.logger.info('-> Rotating backups')
+					if not self.h.rotate_backups(max, path, False):
+						self.logger.warning('(!) Failed to cleanup old backups')
+						# Non-fatal so only warning as backup completed but cleanup failed
+						warning_cnt += 1
 			else:
 				self.logger.critical('(!) Unable to create backup directory: {}'.format(path))
-				self.logger.info('>> Error <<')
+				error_cnt += 1
+
+		# Pool DB Backup Summary
+		end_time = datetime.datetime.now()
+		elapsed = self.h.get_elapsed(begin_time, end_time)
+		backup_file_size = self.h.get_file_size(backup_file)
+		self.logger.info('*************************')
+		self.logger.info('POOL-DB-BACKUP completed at {} - time:{} size:{}'.format(self.h.get_time_string(end_time), elapsed, backup_file_size))
+
+		# Report summary status
+		if warning_cnt > 0 and success_cnt > 0:
+			self.logger.info('>> Success with Warning <<')
+		elif error_cnt > 0:
+			self.logger.info('>> Error <<')
+		elif success_cnt > 0:
+			self.logger.info('>> Success <<')
+		else:
+			# Should never occur
+			self.logger.info('>> Unknown <<')
 
 	def backup_vdi(self, vms, config):
 		begin_time = datetime.datetime.now()
@@ -579,7 +652,7 @@ class XenLocalService(Service):
 			vm_end = datetime.datetime.now()
 			elapsed = self.h.get_elapsed(vm_start, vm_end)
 			backup_file_size = self.h.get_file_size(backup_file)
-			self.logger.info('{} completed at {} - time:{}'.format(vm_name, self.h.get_time_string(vm_end), elapsed))
+			self.logger.info('{} completed at {} - time:{} size:{}'.format(vm_name, self.h.get_time_string(vm_end), elapsed, backup_file_size))
 			success_cnt += 1
 
 		# VM-Export Summary

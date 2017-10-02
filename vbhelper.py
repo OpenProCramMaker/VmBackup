@@ -155,26 +155,28 @@ class Helper():
 			str = str[:-2]
 		self.logger.info('  {}: {}'.format(type, str))
 
-	def rotate_backups(self, max, path):
+	def rotate_backups(self, max, path, vm_type=True):
 		self.logger.debug('(i) Path to check for backups: {}'.format(path))
 		self.logger.debug('(i) Maximum backups to keep: {}'.format(max))
 		files = [join(path, f) for f in listdir(path)]
-		if len(files) % 2 == 0:
+		backups = len(files)
+		if vm_type:
+			if not len(files) % 2 == 0:
+				self.logger.error('(!) Orphaned backup/meta files detected. Please remove orphaned files from {}.'.format(path))
+				return False
 			backups = len(files) / 2
-			self.logger.debug('(i) Total backups found: {}'.format(backups))
-			files = sorted(files, key=getmtime)
-			while (backups > max and backups > 1):
+		self.logger.debug('(i) Total backups found: {}'.format(backups))
+		files = sorted(files, key=getmtime)
+		while (backups > max and backups > 1):
+			if vm_type:
 				meta_file = files.pop(0)
-				backup_file = files.pop(0)
 				self.logger.info('> Removing old metadata backup: {}'.format(meta_file))
-				self.logger.info('> Removing old backup: {}'.format(backup_file))
 				remove(meta_file)
-				remove(backup_file)
-				backups -= 1
-			return True
-		else:
-			self.logger.error('(!) Pairs of backup and meta-backups are not even. Please remove orphaned files from {}.'.format(path))
-			return False
+			backup_file = files.pop(0)
+			self.logger.info('> Removing old backup: {}'.format(backup_file))
+			remove(backup_file)
+			backups -= 1
+		return True
 
 	def run_cmd(self, cmd_line):
 		self.logger.debug('(i) Running command: {}'.format(cmd_line))

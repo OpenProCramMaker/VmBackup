@@ -73,11 +73,11 @@ def main():
 	logger.info('')
 
 	if config['host_backup']:
-		service.backup_hosts(config['backup_dir'])
+		service.backup_hosts(config['max_backups'], config['backup_dir'])
 		logger.info('')
 
 	if config['pool_backup']:
-		service.backup_pool_db(config['backup_dir'])
+		service.backup_pool_db(config['max_backups'], config['backup_dir'])
 		logger.info('')
 
 	if vdi_exports:
