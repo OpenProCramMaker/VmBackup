@@ -15,15 +15,19 @@ XenServer Backup
    - An optional SMB/CIFS mode can be enabled via the `share_type` option in the config file.
 2. For all of the XenServers in a given pool, mount the new share at your desired filesystem location (default location is `/mnt/VmBackup`).  
    - **NOTE**: Make sure to add the new mount information to the `/etc/fstab` file to ensure it is remounted on a reboot of the host.
-3. Download and extract the latest release to your execution location, such as `/mnt/VmBackup`
-   - If you run VmBackup from a location other than the default, you must update the base directory using the `base_dir` option to update the following locations to match as they use absolute paths:
+3. Download and extract the latest release to your desired execution location, such as `/mnt/VmBackup`
+   - If you wish to run VmBackup from a location other than the default, you must update the `base_dir` option to set the following locations to match as they use absolute paths based upon the base directory:
       - `%base_dir%/etc`
          - Contains `vmbackup.example` (example vmbackup.cfg file that is heavily commented)
          - Contains `%base_dir%/etc/logging.example` (example of logging.json with default logging configuration)
          - Location to include optional configuration file `vmbackup.cfg` for overriding default configuration
          - Location to include optional `logging.json` for overriding default logging settings
       - `%base_dir%/logs`
-         - Contains VmBackup log files `vmbackup.log` and `debug.log`.
+         - Contains VmBackup log files `vmbackup.log` and `debug.log` based upon default logging configuration
+      - `%base_dir%/exports`
+         - Contains all the VM/VDI backups
+         - Defaults to `/mnt/VmBackup/exports`
+         - Can be independently configured to be located where you desire (possibly separate from VmBackup files) using the `backup_dir` option
 4. Inspect and customize certain options in the `%base_dir%/etc/vmbackup.cfg`, `/etc/vmbackup.cfg`, and/or `~/vmbackup.cfg` as desired.
    - The configuration files are read in the following order with a "last match wins" convention
      - `%base_dir%/etc/vmbackup.cfg`
@@ -52,9 +56,12 @@ optional arguments:
    `-C, --compress`  Compress on export (vm-exports only)  
    `-F FORMAT, --format FORMAT`  VDI export format (vdi-exports only, Default: raw)  
    `--preview`  Preview resulting config and exit  
-   `-e STRING, --vm-export STRING`  VM name or Regex for vm-export (Default: ".*") NOTE: Specify multiple times for multiple values)  
-   `-E STRING, --vdi-export STRING`  VM name or Regex for vdi-export (Default: None) NOTE: Specify multiple times for multiple values)  
-   `-x STRING, --exclude STRING`  VM name or Regex to exclude (Default: None) NOTE: Specify multiple times for multiple values)
+   `-e STRING, --vm-export STRING`  
+   VM name or Regex for vm-export (Default: ".*") NOTE: Specify multiple times for multiple values)  
+   `-E STRING, --vdi-export STRING`  
+   VM name or Regex for vdi-export (Default: None) NOTE: Specify multiple times for multiple values)  
+   `-x STRING, --exclude STRING`  
+   VM name or Regex to exclude (Default: None) NOTE: Specify multiple times for multiple values)
 
 #### Some usage examples:
 
@@ -163,11 +170,30 @@ Run backup of all VMs nightly and backup pool metadata and hosts weekly with ful
   10 0 * * 6 /mnt/VmBackup/VmBackup.py -x '.*' -p -H
 ```
 
-NOTE: Configuring your system to send emails from cron to your email is well-documented for linux hosts and is outside the scope of this document
+NOTE: XenServer uses ssmtp to send emails from the system for both XenServer alerts configured and system emails like from cron jobs
+
+#### Configuring SSMTP on XenServer to send you emails
+/etc/ssmtp/ssmtp.conf
+```
+# Username and password (uncomment if required by mail server)
+#authUser=username
+#authPass=password
+# Mail server and port to send emails to
+mailhub=<mailserver dns or ip>:<port>
+# The following three lines allow you to encrypt the emails and authentication when sending emails from XenServer
+UseTLS=YES
+UseSTARTTLS=YES
+TLS_CA_File=/etc/pki/tls/certs/ca-bundle.crt
+# Uncomment the below line if you wish to see DEBUG logging of the email system in the system logs to troubleshoot issues
+#Debug=YES
+```
+
+/etc/aliases  
+Change `#root:          marc` line to `root:           <your email address>`
 
 ### VM selection and max_backups operations
 
-The number of VM backups saved is based upon the configured max_backups value. For example, if max_backups=3 and the fourth successful backup completes, the oldest backup will be deleted. The vm_exports and vdi_exports each have their associated process list where each entry is of the form vm-name/regex:max_backups. The :max_backups is optional, and, if specified, is the maximum number of backups to maintain for this vm-name. Otherwise, the global max_backups is in effect for the given vm-name. At the completion of every successful VM vm-export/vdi-export operation, the oldest backup(s) are deleted using the in effect vm-name:max_backups value. If you want to specify specific disks to backup during a vdi-export, you must specify the max_backups field; if you do not want to deviate from the configured setting just use -1 as the value (i.e. `VMNAME:-1:xvdb;xvdc`). **WARNING**: Each VDI backed up using vdi-export counts as a backup, even if for the same VM so keep this in mind if you specify multiple disks for a VM (i.e. MYVM03:2:xvda;xvdb will only keep one backup of each disk since together they total 2 backups).
+The number of VM backups saved is based upon the configured max_backups value. For example, if max_backups=3 and the fourth successful backup completes, the oldest backup will be deleted. The vm_exports and vdi_exports each have their associated process list where each entry is of the form vm-name/regex:max_backups. The :max_backups is optional, and, if specified, is the maximum number of backups to maintain for this vm-name. Otherwise, the global max_backups is in effect for the given vm-name. At the completion of every successful VM vm-export/vdi-export operation, the oldest backup(s) are deleted using the in effect vm-name:max_backups value. If you want to specify specific disks to backup during a vdi-export, you must specify the max_backups field; if you do not want to deviate from the configured setting just use -1 as the value (i.e. `VMNAME:-1:xvdb;xvdc`). **WARNING**: Each VDI backed up using vdi-export counts as a backup, even if for the same VM, so keep this in mind if you specify multiple disks for a VM (i.e. MYVM03:2:xvda;xvdb will only keep one backup of each disk since together they total 2 backups).
 
 The following VM selection operations apply to the vm-export/vdi-export configuration (both command-line and config file selections): (1) Remove any matched VMs from excludes (both simple and regex-based) from the available list of VMs in the pool, (2) load each matched VM in vdi_exports into the config for vdi-export, then finally (3) load each matched VM from vm_exports into the config for full export ignoring any VMs already marked for vdi-export. By using the `--preview` option the scope of the given VmBackup run is clearly output and is a good way to test.
 
@@ -181,7 +207,7 @@ The VM backup directory has this format %BACKUP_DIR%/vm-name/ and each VM backup
 The vm backup file has one of four possible formats, (1) backup_[date]-[time].xva which is created from a vm-export, (2) backup_[date]-[time].xva.gz created from a vm-export with `compress` option, (3) backup_[date]-[time].raw which is created from vdi-export in raw format, or (4) backup_[date]-[time].vhd which is created from vdi-export in vhd format.
 
 #### Additional VM Metadata
-For each backup, there is a dump of selected XenServer VM metadata in a backup_[date]-[time].meta file. This information can be useful in certain recovery situations.
+For each backup, there is a dump of selected XenServer VM metadata in a backup_[date]-[time].meta file. This information can be useful in certain recovery situations:
 
 * VM
 	* name_label, name_description, memory_dynamic_max, VCPUs_max, VCPUs_at_startup, os_version, orig_uuid
