@@ -166,32 +166,41 @@ class XenLocalService(Service):
 		error_cnt = 0
 		warning_cnt = 0
 
+		# Get all hosts in pool for backup
+		self.logger.info('-> Getting all hosts')
+		all_hosts = self.get_all_hosts()
+		if len(all_hosts) == 0:
+			self.logger.error('(!) No hosts returned from pool')
+			error_cnt += 1
+		
+		# Set parameters for backup
+		self.logger.info('-> Setting backup parameters')
+		params = ''
+		if enabled_only:
+			params = 'enabled=true'
+		self.logger.debug('(i) Backup params: {}'.format(params))
+
 		path = join(backup_dir, 'HOSTS')
 		if self.h.verify_path(path):
-			backup_file = '{}/hosts_{}.xbk'.format(path, self.h.get_date_string())
-			self.logger.debug('(i) Backup file: {}'.format(backup_file))
-			
-			# Set parameters
-			params = ''
-			if enabled_only:
-				params = 'enabled=true'
+			for host in all_hosts:
+				host_start = datetime.datetime.now()
+				self.logger.info('* {} started at {}'.format(host, self.h.get_time_string(host_start)))
 
-			# Backup hosts in pool
-			self.logger.debug('(i) Backup params: {}'.format(params))
-			self.logger.info('-> Backing up Hosts')
-			cmd = 'host-backup file-name="{}" --multiple {}'.format(backup_file, params)
-			if not self._run_xe_cmd(cmd):
-				self.logger.error('(!) Failed to backup hosts')
-				error_cnt += 1
-			else:
-				success_cnt += 1
-
-				# Remove old backups based on retention
-				self.logger.info('-> Rotating backups')
-				if not self.h.rotate_backups(max, path, False):
-					self.logger.warning('(!) Failed to cleanup old backups')
-					# Non-fatal so only warning as backup completed but cleanup failed
-					warning_cnt += 1
+				# Backup host
+				self.logger.info('-> Backing up Host')
+				backup_file = '{}/{}_{}.xbk'.format(path, host, self.h.get_date_string(host_start))
+				self.logger.debug('(i) Backup file: {}'.format(backup_file))
+				cmd = 'host-backup host="{}" file-name="{}" {}'.format(host, backup_file, params)
+				if not self._run_xe_cmd(cmd):
+					self.logger.error('(!) Failed to backup host: {}'.format(host))
+					error_cnt += 1
+				else:
+					# Gather additional information on backup and report success
+					host_end = datetime.datetime.now()
+					elapsed = self.h.get_elapsed(host_start, host_end)
+					backup_file_size = self.h.get_file_size(backup_file)
+					self.logger.info('* End {} at {} - time:{} size:{}'.format(host, self.h.get_time_string(host_end), elapsed, backup_file_size))
+					success_cnt += 1
 		else:
 			self.logger.critical('(!) Unable to create backup directory: {}'.format(path))
 			error_cnt += 1
@@ -199,15 +208,19 @@ class XenLocalService(Service):
 		# Host Backup Summary
 		end_time = datetime.datetime.now()
 		elapsed = self.h.get_elapsed(begin_time, end_time)
-		backup_file_size = self.h.get_file_size(backup_file)
 		self.logger.info('*************************')
-		self.logger.info('HOST-BACKUP completed at {} - time:{} size:{}'.format(self.h.get_time_string(end_time), elapsed, backup_file_size))
+		self.logger.info('HOST-BACKUP completed at {} - time:{}'.format(self.h.get_time_string(end_time), elapsed))
 
 		# Report summary status
-		if warning_cnt > 0 and success_cnt > 0:
+		self.logger.info('Summary - S:{} W:{} E:{}'.format(success_cnt, warning_cnt, error_cnt))
+		if error_cnt > 0 and success_cnt > 0:
+			self.logger.info('>> Success with Errors <<')
+		elif warning_cnt > 0 and success_cnt > 0:
 			self.logger.info('>> Success with Warning <<')
 		elif error_cnt > 0:
 			self.logger.info('>> Error <<')
+		elif warning_cnt > 0:
+			self.logger.info('>> Warning <<')
 		elif success_cnt > 0:
 			self.logger.info('>> Success <<')
 		else:
@@ -683,13 +696,7 @@ class XenLocalService(Service):
 		if as_list:
 			hosts = hosts.split(',')
 		self.logger.debug('(i) Hosts: {}'.format(hosts))
-		if len(hosts) == 0:
-			self.logger.error('(!) No hosts returned from pool')
-			self.logger.info('>> Error <<')
-			raise RuntimeError('(!) No hosts returned from pool')
-		else:
-			self.logger.info('>> Success <<')
-			return hosts
+		return hosts
 
 	def get_all_vms(self, as_list=True):
 		cmd = 'vm-list is-control-domain=false is-a-snapshot=false params=name-label --minimal'
