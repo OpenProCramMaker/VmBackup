@@ -1,7 +1,12 @@
 # Changelog for VmBackup
 
+## v1.0.1 - 2 October 2017
+ - [bugs]
+	* Fixed issue with multiple hosts for host-backup
+	* Removed backup rotations for host-backup as would need code rework
+
 ## v1.0.0 - 2 October 2017
- - [general improvements]
+ - [enhancements]
 	* Complete refactor of code with emphasis on code reuse
 	* No code changes required to override settings of any kind
 	* Proper type checking on config load
@@ -24,7 +29,7 @@
 	* Backup directory space threshold
 	* Disk selection for VDI exports
 	* Log level control to affect desired output
- - [bugs fixed]
+ - [bugs]
 	* Many minor bug fixes during refactor
  
 
