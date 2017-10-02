@@ -13,20 +13,25 @@ XenServer Backup
 1. VmBackup will require lots of file storage; setup a storage server with an exported VM backup share.
    - Frequently NFS is used for the storage server, with many installation and configuration sources available on the web.
    - An optional SMB/CIFS mode can be enabled via the `share_type` option in the config file.
-2. For all of the XenServers in a given pool, mount the new share at your desired filesystem location (default location is `/mnt/VmBackup`). 
-3. Finish creating a share directory structure that meets your needs. Here are the VmBackup sub-directories:
-   - /mnt/VmBackup/exports - Contains all VM backups (reconfigurable with `backup_dir` option)
-   - /mnt/VmBackup/etc - Contains optional configuration file `vmbackup.cfg` for overriding default configuration and optional `logging.json` for overriding default logging settings
-   - /mnt/VmBackup/logs - Contains VmBackup log files `vmbackup.log` and `debug.log`.
-4. Download and extract the latest release to your execution location, such as `/mnt/VmBackup`
-5. Inspect and customize certain options in the `%base_dir%/etc/vmbackup.cfg`, `/etc/vmbackup.cfg`, and/or `~/vmbackup.cfg` as desired. `%base_dir%/etc/vmbackup.example` is heavily commented to help you understand the options. `%base_dir%/etc/logging.example` shows the default logging configuration.
+2. For all of the XenServers in a given pool, mount the new share at your desired filesystem location (default location is `/mnt/VmBackup`).  
+   - **NOTE**: Make sure to add the new mount information to the `/etc/fstab` file to ensure it is remounted on a reboot of the host.
+3. Download and extract the latest release to your execution location, such as `/mnt/VmBackup`
+   - If you run VmBackup from a location other than the default, you must update the base directory using the `base_dir` option to update the following locations to match as they use absolute paths:
+      - `%base_dir%/etc`
+         - Contains `vmbackup.example` (example vmbackup.cfg file that is heavily commented)
+         - Contains `%base_dir%/etc/logging.example` (example of logging.json with default logging configuration)
+         - Location to include optional configuration file `vmbackup.cfg` for overriding default configuration
+         - Location to include optional `logging.json` for overriding default logging settings
+      - `%base_dir%/logs`
+         - Contains VmBackup log files `vmbackup.log` and `debug.log`.
+4. Inspect and customize certain options in the `%base_dir%/etc/vmbackup.cfg`, `/etc/vmbackup.cfg`, and/or `~/vmbackup.cfg` as desired.
    - The configuration files are read in the following order with a "last match wins" convention
      - `%base_dir%/etc/vmbackup.cfg`
      - `/etc/vmbackup.cfg`
      - `~/vmbackup.cfg`
-     - Command-line specified config file using `-c <file>` or `--config <file>` option
-6. Initially use the `--preview` command-line option to confirm the resulting configuration from files and command-line flags before running an actual backup.
-7. Set up a crontab entry or method for executing backups on a schedule
+     - Optional config file using `-c <file>` or `--config <file>` command-line option
+5. Initially use the `--preview` command-line option to confirm the resulting configuration from files and command-line flags before running an actual backup.
+6. Set up a crontab entry or method for executing backups on a schedule
 
 ## VmBackup Command Usage
 
@@ -47,9 +52,9 @@ optional arguments:
    `-C, --compress`  Compress on export (vm-exports only)  
    `-F FORMAT, --format FORMAT`  VDI export format (vdi-exports only, Default: raw)  
    `--preview`  Preview resulting config and exit  
-   `-x STRING, --exclude STRING`  VM name or Regex to exclude (Default: None) NOTE: Specify multiple times for multiple values)
    `-e STRING, --vm-export STRING`  VM name or Regex for vm-export (Default: ".*") NOTE: Specify multiple times for multiple values)  
-   `-E STRING, --vdi-export STRING`  VM name or Regex for vdi-export (Default: None) NOTE: Specify multiple times for multiple values) 
+   `-E STRING, --vdi-export STRING`  VM name or Regex for vdi-export (Default: None) NOTE: Specify multiple times for multiple values)  
+   `-x STRING, --exclude STRING`  VM name or Regex to exclude (Default: None) NOTE: Specify multiple times for multiple values)
 
 #### Some usage examples:
 
@@ -57,25 +62,28 @@ optional arguments:
 	./VmBackup.py
 
 	# Backup a single VM by name (case sensitive)
-	./VmBackup.py  -e DEV-MYSQL
+	./VmBackup.py  -e 'DEV-MYSQL'
 	
 	# Backup a single VM by name with spaces in name
-	./VmBackup.py -e "DEV MYSQL"
+	./VmBackup.py -e 'DEV MYSQL'
 	
 	# Backup VMs by regex which matches more than one VM
-	./VmBackup.py -e DEV-MY.*
+	./VmBackup.py -e 'DEV-MY.*'
 	
 	# Backup VM by name and keep last 2 backups (overrides max_backups)
-	./VmBackup.py  -e DEV-MYSQL:2
+	./VmBackup.py  -e 'DEV-MYSQL:2'
 
-	# Export just first disk (xvda) for a single VM by name
-	./VmBackup.py -E DEV-MYSQL
+	# Export just root disk (xvda) for a single VM by name
+	./VmBackup.py -E 'DEV-MYSQL'
 	
 	# Export just xvdb disk from a single VM by name without overriding number of backups to keep
-	./VmBackup.py -E DEV-MYSQL:-1:xvdb
+	./VmBackup.py -E 'DEV-MYSQL:-1:xvdb'
 	
 	# Export 2 disks of a VM by name and keep last 7 backups
-	./VmBackup.py -E DEV-MYSQL:7:xvda;xvdb
+	./VmBackup.py -E 'DEV-MYSQL:7:xvda;xvdb'
+	
+	# A mix of the options to show some typical selections if not using config file to specify VMs
+	./VmBackup.py -e 'PRD-.*' -e 'MYSQL123' -E 'APPSERVER01:8:xvda;xvdc' -e 'DEV-.*' -x 'DEV-SHORTtest' -p -H
 
 ### A few words about Python REGEX syntax
 
@@ -140,10 +148,10 @@ Note that there are numerous combinations that may possibly conflict with each o
 
 ### Common cronjob examples
 
-Run backup once a week with no report  
+Run backup once a week with no email report  
 `10 0 * * 6 /mnt/VmBackup/VmBackup.py >>/dev/null 2>&1`
 
-Run backup once a week and let cron send email with output on every run  
+Run backup once a week and let cron send email report on every run  
 `10 0 * * 6 /mnt/VmBackup/VmBackup.py`
 
 Run backup once a week and let cron send email only if there are warnings or errors  
