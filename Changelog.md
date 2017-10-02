@@ -1,6 +1,6 @@
 # Changelog for VmBackup
 
-## v1.0.0 - ?? October 2017
+## v1.0.0 - 2 October 2017
  - [general improvements]
 	* Complete refactor of code with emphasis on code reuse
 	* No code changes required to override settings of any kind
@@ -15,8 +15,12 @@
 		while running locally on XenServer host
 	* Singular metadata backup file per backup
 	* No per-backup directories
+	* Backup rotation for host-backup and pool-db-backup
+	* No email code - instead relies on host to send email from cron if configured
+	* Able to control verbosity of email reports as desired using log-level flags
+	* Improved logging messages and formatting for easy to read logs/reports
  - [new features]
-	* Host backup
+	* Host-backup
 	* Backup directory space threshold
 	* Disk selection for VDI exports
 	* Log level control to affect desired output
