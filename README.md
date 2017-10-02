@@ -156,7 +156,7 @@ Note that there are numerous combinations that may possibly conflict with each o
 ### Common cronjob examples
 
 Run backup once a week with no email report  
-`10 0 * * 6 /mnt/VmBackup/VmBackup.py >>/dev/null 2>&1`
+`10 0 * * 6 /mnt/VmBackup/VmBackup.py >/dev/null 2>&1`
 
 Run backup once a week and let cron send email report on every run  
 `10 0 * * 6 /mnt/VmBackup/VmBackup.py`
