@@ -157,7 +157,7 @@ class XenLocalService(Service):
 		self._xe_path = '/opt/xensource/bin'
 		super(self.__class__, self).__init__(helper, vbdata.XenLocal())
 
-	def backup_hosts(self, max, backup_dir, enabled_only=True):
+	def backup_hosts(self, backup_dir, enabled_only=True):
 		begin_time = datetime.datetime.now()
 		self.logger.info('*************************')
 		self.logger.info('** HOST-BACKUP ({})'.format(self.h.get_time_string(begin_time)))
