@@ -57,11 +57,11 @@ optional arguments:
    `-F FORMAT, --format FORMAT`  VDI export format (vdi-exports only, Default: raw)  
    `--preview`  Preview resulting config and exit  
    `-e STRING, --vm-export STRING`  
-   VM name or Regex for vm-export (Default: ".*") NOTE: Specify multiple times for multiple values)  
+   VM name or Regex for vm-export (Default: ".*") NOTE: Specify multiple times for multiple values  
    `-E STRING, --vdi-export STRING`  
-   VM name or Regex for vdi-export (Default: None) NOTE: Specify multiple times for multiple values)  
+   VM name or Regex for vdi-export (Default: None) NOTE: Specify multiple times for multiple values  
    `-x STRING, --exclude STRING`  
-   VM name or Regex to exclude (Default: None) NOTE: Specify multiple times for multiple values)
+   VM name or Regex to exclude (Default: None) NOTE: Specify multiple times for multiple values
 
 #### Some usage examples:
 
