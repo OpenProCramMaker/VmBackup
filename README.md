@@ -176,6 +176,8 @@ XenServer uses ssmtp to send emails from the system for both XenServer alerts co
 
 _/etc/ssmtp/ssmtp.conf_
 ```
+# Route system emails bound for root to go to your email address
+root=<your email address>
 # Username and password (uncomment if required by mail server)
 #authUser=username
 #authPass=password
@@ -190,9 +192,6 @@ TLS_CA_File=/etc/pki/tls/certs/ca-bundle.crt
 # Uncomment the below line if you wish to see DEBUG logging of the email system in the system logs to troubleshoot issues
 #Debug=YES
 ```
-
-_/etc/aliases_  
-Change `#root:          marc` line to `root:           <your email address>`
 
 ### VM selection and max_backups operations
 
