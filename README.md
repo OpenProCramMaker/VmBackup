@@ -36,6 +36,7 @@ XenServer Backup
      - Optional config file using `-c <file>` or `--config <file>` command-line option
 5. Initially use the `--preview` command-line option to confirm the resulting configuration from files and command-line flags before running an actual backup.
 6. Set up a crontab entry or method for executing backups on a schedule
+   - When you first download and extract the files, VmBackup.py will not have execute rights; `chmod +x /mnt/VmBackup/VmBackup.py` will fix that. If you don't want to make VmBackup.py executable, you can instead load it with python directly in your cron job or on the command-line: `/usr/bin/python /mnt/VmBackup/VmBackup.py <parameters>`
 
 ## VmBackup Command Usage
 
@@ -170,9 +171,6 @@ Run backup of all VMs nightly and backup pool metadata and hosts weekly with ful
   10 0 * * 6 /mnt/VmBackup/VmBackup.py -x '.*' -p -H
 ```
 
-NOTE: When you first download and extract the files, VmBackup.py will not have execute rights; `chmod +x /mnt/VmBackup/VmBackup.py` will fix that. If you don't want to make VmBackup.py executable, you can instead load it with python directly in your cron job or on the command-line:  
-`/usr/bin/python /mnt/VmBackup/VmBackup.py <parameters>`
-
 #### Configuring SSMTP on XenServer to send you emails
 XenServer uses ssmtp to send emails from the system for both XenServer alerts configured and system emails like from cron jobs
 
@@ -183,6 +181,8 @@ _/etc/ssmtp/ssmtp.conf_
 #authPass=password
 # Mail server and port to send emails to
 mailhub=<dns-name or ip>:<port>
+# Your intranet/internet domain from which you send emails (i.e. mycompany.com)
+RewriteDomain=<your-domain>
 # The following three lines allow you to encrypt the emails and authentication when sending emails from XenServer
 UseTLS=YES
 UseSTARTTLS=YES
