@@ -36,7 +36,8 @@ XenServer Backup
      - Optional config file using `-c <file>` or `--config <file>` command-line option
 5. Initially use the `--preview` command-line option to confirm the resulting configuration from files and command-line flags before running an actual backup.
 6. Set up a crontab entry or method for executing backups on a schedule
-   - When you first download and extract the files, VmBackup.py will not have execute rights; `chmod +x /mnt/VmBackup/VmBackup.py` will fix that. If you don't want to make VmBackup.py executable, you can instead load it with python directly in your cron job or on the command-line: `/usr/bin/python /mnt/VmBackup/VmBackup.py <parameters>`
+   - When you first download and extract the files, VmBackup.py will not have execute rights; `chmod +x /mnt/VmBackup/VmBackup.py` will fix that. If you don't want to make VmBackup.py executable, you can instead load it with python directly in your cron job or on the command-line: `/usr/bin/python /mnt/VmBackup/VmBackup.py <parameters>`.
+   - You can run VmBackup from any host in the pool with all available options, not just the master; running it on a host with little to no VMs on it may be optimal since dom0 resources are used for backups.
 
 ## VmBackup Command Usage
 
