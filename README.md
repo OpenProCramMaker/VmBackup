@@ -170,10 +170,13 @@ Run backup of all VMs nightly and backup pool metadata and hosts weekly with ful
   10 0 * * 6 /mnt/VmBackup/VmBackup.py -x '.*' -p -H
 ```
 
-NOTE: XenServer uses ssmtp to send emails from the system for both XenServer alerts configured and system emails like from cron jobs
+NOTE: When you first download and extract the files, VmBackup.py will not have execute rights; `chmod +x /mnt/VmBackup/VmBackup.py` will fix that. If you don't want to make VmBackup.py executable, you can instead load it with python directly in your cron job or on the command-line:  
+`/usr/bin/python /mnt/VmBackup/VmBackup.py <parameters>`
 
 #### Configuring SSMTP on XenServer to send you emails
-/etc/ssmtp/ssmtp.conf
+XenServer uses ssmtp to send emails from the system for both XenServer alerts configured and system emails like from cron jobs
+
+_/etc/ssmtp/ssmtp.conf_
 ```
 # Username and password (uncomment if required by mail server)
 #authUser=username
@@ -188,7 +191,7 @@ TLS_CA_File=/etc/pki/tls/certs/ca-bundle.crt
 #Debug=YES
 ```
 
-/etc/aliases  
+_/etc/aliases_  
 Change `#root:          marc` line to `root:           <your email address>`
 
 ### VM selection and max_backups operations
