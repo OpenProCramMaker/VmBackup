@@ -4,7 +4,7 @@ XenServer Backup
 ## Overview
  - The VmBackup tool is run from a XenServer host and utilizes the native `xe vm-export` and `xe vdi-export` commands to backup both Linux and Windows VMs. 
  - The backup is run after a respective vm-snapshot or vdi-snapshot occurs, which allows for the backup to execute while the VM is up and running.
- - During the backup of specified VMs, this tool collects additional VM metadata using the XenServer XenAPI. This additional information can be useful during VM restore situations and is stored in ".meta" files.
+ - During the backup of specified VMs, this tool collects additional VM metadata using Xen-API. This additional information can be useful during VM restore situations and is stored in ".meta" files.
  - Typically, VmBackup is implemented through scheduled crontab entries or can be run manually on a XenServer ssh session. It is important to keep in mind that the backup process does use critical dom0 resources, so running a backup during heavy workloads should be avoided (especially if used with `compress` option).
  - The SRs where one or more VDIs are located require sufficient free space to hold a complete snapshot of a VM. The temporary snapshots that are created during the backup process are deleted after the backup has completed.
 
