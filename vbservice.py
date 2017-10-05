@@ -568,7 +568,7 @@ class XenLocalService(Service):
 			
 			# Cleanup snapshot from previous attempt if exists
 			self.logger.info('-> Checking for previous snapshot: {}'.format(snap_name))
-			cmd = 'vm-list name-label="{}" params=uuid --minimal'.format(snap_name)
+			cmd = 'snapshot-list name-label="{}" params=uuid --minimal'.format(snap_name)
 			old_snap = self._get_xe_cmd_result(cmd)
 			if old_snap:
 				self.logger.warning('(!) Previous backup snapshot found: {}'.format(old_snap))
@@ -579,18 +579,6 @@ class XenLocalService(Service):
 					warning_cnt += 1
 				else:
 					self.logger.info('> Previous backup snapshot removed')
-			else:
-				cmd = 'snapshot-list name-label="{}" params=uuid --minimal'.format(snap_name)
-				old_snap = self._get_xe_cmd_result(cmd)
-				if old_snap:
-					self.logger.warning('(!) Previous backup snapshot found: {}'.format(old_snap))
-					self.logger.info('> Cleaning up snapshot from previous attempt')
-					cmd = 'snapshot-destroy uuid={}'.format(old_snap)
-					if not self._run_xe_cmd(cmd):
-						self.logger.error('(!) Failed to cleanup snapshot from previous attempt')
-						warning_cnt += 1
-					else:
-						self.logger.info('> Previous backup snapshot removed')
 
 			vm_uuid = vm_meta['uuid']
 			
