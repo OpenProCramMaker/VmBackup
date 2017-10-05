@@ -1,6 +1,6 @@
 # Changelog for VmBackup
 
-## v1.0.2 - ?? October 2017
+## v1.0.2 - 4 October 2017
  - [enhancements]
  	* Documentation update for sSMTP configuration
 	* Minor Documentation updates for clarification/typos
