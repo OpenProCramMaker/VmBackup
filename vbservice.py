@@ -148,9 +148,6 @@ class Service(object):
 		else:
 			return vm[0]
 
-	def is_master(self):
-		raise NotImplementedError('(!) Must be implemented in subclass')
-
 class XenLocalService(Service):
 
 	def __init__(self, helper):
@@ -731,19 +728,6 @@ class XenLocalService(Service):
 		except OSError as e:
 			self.logger.critical('(!) Unable to run command: {}'.format(e))
 		return output
-
-	def is_master(self):
-		self.logger.debug('(i) Checking if host is master')
-		try:
-			f = open('/etc/xensource/pool.conf', 'r')
-			check = f.readline()
-			f.close()
-			self.logger.debug('(i) Server Status: {}'.format(check))
-			if check == 'master':
-				return True
-		except IOError as e:
-			self.logger.critical('(!) Unable to determine master status: {}'.format(e))
-		return False
 
 	def _run_xe_cmd(self, cmd):
 		cmd = '{}/xe {}'.format(self._xe_path, cmd)
