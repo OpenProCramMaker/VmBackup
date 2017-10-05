@@ -2,15 +2,12 @@
 
 ##### Configure core settings #####
 
-# Base directory used to build other paths like backup_dir
-#base_dir = /mnt/VmBackup
-
 # Type of share backup_dir is on ( currently supports nfs and smb )
 # NOTE: Path seperators will be automatically switched ( / vs \ )
 #share_type = nfs
 
 # Directory where data will be backed up to
-#backup_dir = %(base_dir)s/exports
+#backup_dir = /mnt/VmBackup/exports
 
 # Minimum percentage of space remaining for backup_dir before backups
 # are prevented

@@ -23,22 +23,22 @@ from json import load
 from logging import debug, info, warning, error, critical, getLogger
 from logging.config import dictConfig
 from os import getenv
-from os.path import exists, expanduser
+from os.path import exists, expanduser, abspath, dirname
+from sys import argv
 
 class Configurator(object):
  
 	def __init__(self, helper, args):
 		self.h = helper
-		if args.base_dir:
-			debug('(i) Updating base_dir from command-line args')
-			self.base_dir = args.base_dir
-		else:
-			self.base_dir = '/mnt/VmBackup'
+		path = abspath(argv[0])
+		self._base_dir = dirname(path)
+
 		if args.config:
 			debug('(i) Updating config with file: {}'.format(args.config))
-			self.config_file = args.config
+			self._config_file = args.config
 		else:
-			self.config_file = False
+			self._config_file = False
+
 		self._setup_logging()
 		self.logger = getLogger('vmbackup.config')
 
@@ -48,9 +48,8 @@ class Configurator(object):
 		conf_parser = ConfigParser.SafeConfigParser()
 		log.debug('(i) Adding vmbackup section')
 		conf_parser.add_section('vmbackup')
-		conf_parser.set('vmbackup', 'base_dir', self.base_dir)
 		conf_parser.set('vmbackup', 'share_type', 'nfs')
-		conf_parser.set('vmbackup', 'backup_dir', '%(base_dir)s/exports')
+		conf_parser.set('vmbackup', 'backup_dir', '{}/exports'.format(self._base_dir))
 		conf_parser.set('vmbackup', 'space_threshold', '20')
 		conf_parser.set('vmbackup', 'max_backups', '4')
 		conf_parser.set('vmbackup', 'compress', 'False')
@@ -58,10 +57,10 @@ class Configurator(object):
 		conf_parser.set('vmbackup', 'pool_backup', 'False')
 		conf_parser.set('vmbackup', 'host_backup', 'False')
 		log.debug('(i) Reading updates to config from configuration files')
-		conf_parser.read(['{}/etc/vmbackup.cfg'.format(self.base_dir), '/etc/vmbackup.cfg', expanduser('~/vmbackup.cfg')])
-		if self.config_file:
+		conf_parser.read(['{}/etc/vmbackup.cfg'.format(self._base_dir), '/etc/vmbackup.cfg', expanduser('~/vmbackup.cfg')])
+		if self._config_file:
 			log.debug('(i) Reading configuration file provided on command-line')
-			conf_parser.read([self.config_file])
+			conf_parser.read([self._config_file])
 		log.debug('(i) Done setting configuration from files')
 		return self._sanitize_options(conf_parser)
 
@@ -114,7 +113,7 @@ class Configurator(object):
 					"class": "logging.handlers.RotatingFileHandler",
 					"level": "WARNING",
 					"formatter": "detailed",
-					"filename": "{}/logs/vmbackup.log".format(self.base_dir),
+					"filename": "{}/logs/vmbackup.log".format(self._base_dir),
 					"maxBytes": 10485760,
 					"backupCount": 20,
 					"encoding": "utf8"
@@ -123,7 +122,7 @@ class Configurator(object):
 					"class": "logging.handlers.RotatingFileHandler",
 					"level": "DEBUG",
 					"formatter": "detailed",
-					"filename": "{}/logs/debug.log".format(self.base_dir),
+					"filename": "{}/logs/debug.log".format(self._base_dir),
 					"maxBytes": 10485760,
 					"backupCount": 20,
 					"encoding": "utf8"
@@ -142,7 +141,7 @@ class Configurator(object):
 			}
 		}
 
-		cfg_file = '{}/etc/logging.json'.format(self.base_dir)
+		cfg_file = '{}/etc/logging.json'.format(self._base_dir)
 		value = getenv('LOG_CFG', None)
 		if value:
 			debug('(i) Logging config environment variable set -> {}'.format(value))

@@ -21,7 +21,7 @@
 import logging, sys, argparse, datetime
 import vbconfig, vbhelper, vbservice
 
-version = '1.0.2'
+version = '1.1.0'
 
 def main():
 	server_name = h.get_server_name()
@@ -91,8 +91,6 @@ def main():
 def setup():
 	parent_parser = argparse.ArgumentParser(add_help=False)
 	parent_parser.add_argument('-c', '--config', help='Config file for runtime overrides', metavar='FILE')
-	parent_parser.add_argument('-b', '--base-dir', metavar='PATH',
-		help='Base directory (Default: /mnt/VmBackup)' )
 	args, remaining_argv = parent_parser.parse_known_args()
 	
 	cfg = vbconfig.Configurator(h, args)
@@ -110,7 +108,7 @@ def setup():
 	)
 	child_parser.set_defaults(**options)
 	child_parser.add_argument('-d', '--backup-dir', metavar='PATH',
-		help='Backups directory (Default: /mnt/VmBackup/exports)')
+		help='Backups directory (Default: <VmBackup Path>/exports)')
 	child_parser.add_argument('-p', '--pool-backup', action='store_true', help='Backup Pool DB')
 	child_parser.add_argument('-H', '--host-backup', action='store_true', help='Backup Hosts in Pool (dom0)')
 	child_parser.add_argument('-l', '--log-level', choices=[ 'debug', 'info', 'warning', 'error', 'critical' ],
@@ -136,8 +134,8 @@ if __name__ == '__main__':
 	h = vbhelper.Helper()
 	config = setup()
 	logger = logging.getLogger('vmbackup')
-        if config['log_level']:
-                logger.setLevel(getattr(logging, config['log_level'].upper(), None))
+	if config['log_level']:
+		logger.setLevel(getattr(logging, config['log_level'].upper(), None))
 	service = vbservice.XenLocalService(h)
 	
 	try:

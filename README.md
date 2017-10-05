@@ -13,45 +13,43 @@ XenServer Backup
 1. VmBackup will require lots of file storage; setup a storage server with an exported VM backup share.
    - Frequently NFS is used for the storage server, with many installation and configuration sources available on the web.
    - An optional SMB/CIFS mode can be enabled via the `share_type` option in the config file.
-2. For all of the XenServers in a given pool, mount the new share at your desired filesystem location (default location is `/mnt/VmBackup`).  
+2. For all of the XenServers in a given pool, mount the new share at your desired filesystem location.  
    - **NOTE**: Make sure to add the new mount information to the `/etc/fstab` file to ensure it is remounted on a reboot of the host.
 3. Download and extract the latest release to your desired execution location, such as `/mnt/VmBackup`
-   - If you wish to run VmBackup from a location other than the default, you must update the `base_dir` option to set the following locations to match as they use absolute paths based upon the base directory:
-      - `%base_dir%/etc`
-         - Contains `vmbackup.example` (example vmbackup.cfg file that is heavily commented)
-         - Contains `%base_dir%/etc/logging.example` (example of logging.json with default logging configuration)
-         - Location to include optional configuration file `vmbackup.cfg` for overriding default configuration
-         - Location to include optional `logging.json` for overriding default logging settings
-      - `%base_dir%/logs`
-         - Contains VmBackup log files `vmbackup.log` and `debug.log` based upon default logging configuration
-      - `%base_dir%/exports`
-         - Contains all the VM/VDI backups
-         - Defaults to `/mnt/VmBackup/exports`
-         - Can be independently configured to be located where you desire (possibly separate from VmBackup files) using the `backup_dir` option
-4. Inspect and customize certain options in the `%base_dir%/etc/vmbackup.cfg`, `/etc/vmbackup.cfg`, and/or `~/vmbackup.cfg` as desired.
+    - Generally you would extract to and run VmBackup from the mounted backup share so that the same version, backups, logs, and configuration are visible to all XenServer hosts, though this is not a requirement
+    - `<VmBackup Path>/etc`
+       - Contains `vmbackup.example` (example vmbackup.cfg file that is heavily commented)
+       - Contains `logging.example` (example of logging.json with default logging configuration)
+       - Location for optional configuration file `vmbackup.cfg` for overriding default configuration
+       - Location for optional `logging.json` for overriding default logging settings
+    - `<VmBackup Path>/logs`
+       - Contains VmBackup log files `vmbackup.log` and `debug.log` based upon default logging configuration
+    - `<VmBackup Path>/exports`
+       - Contains all the VM/VDI backups
+       - Can be independently configured to be located wherever you desire using the `backup_dir` option
+4. Inspect and customize certain options in the `<VmBackup Path>/etc/vmbackup.cfg`, `/etc/vmbackup.cfg`, and/or `~/vmbackup.cfg` as desired.
    - The configuration files are read in the following order with a "last match wins" convention
-     - `%base_dir%/etc/vmbackup.cfg`
+     - `<VmBackup Path>/etc/vmbackup.cfg`
      - `/etc/vmbackup.cfg`
      - `~/vmbackup.cfg`
      - Optional config file using `-c <file>` or `--config <file>` command-line option
 5. Initially use the `--preview` command-line option to confirm the resulting configuration from files and command-line flags before running an actual backup.
 6. Set up a crontab entry or method for executing backups on a schedule
-   - When you first download and extract the files, VmBackup.py will not have execute rights; `chmod +x /mnt/VmBackup/VmBackup.py` will fix that. If you don't want to make VmBackup.py executable, you can instead load it with python directly in your cron job or on the command-line: `/usr/bin/python /mnt/VmBackup/VmBackup.py <parameters>`.
+   - When you first download and extract the files, VmBackup.py will not have execute rights; `chmod +x <VmBackup Path>/VmBackup.py` will fix that. If you don't want to make VmBackup.py executable, you can instead load it with python directly in your cron job or on the command-line: `/usr/bin/python <VmBackup Path>/VmBackup.py <parameters>`.
    - You can run VmBackup from any host in the pool with all available options, not just the master; running it on a host with little to no VMs on it may be optimal since dom0 resources are used for backups.
 
 ## VmBackup Command Usage
 
 #### Basic usage:
 
-VmBackup.py [-h] [-v] [-c FILE] [-b PATH] [-d PATH] [-p] [-H] [-l LEVEL] [-C] [-F FORMAT] [--preview] [-e STRING]  
+VmBackup.py [-h] [-v] [-c FILE] [-d PATH] [-p] [-H] [-l LEVEL] [-C] [-F FORMAT] [--preview] [-e STRING]  
    [-E STRING] [-x STRING]  
 
 optional arguments:  
    `-h, --help`  show this help message and exit  
    `-v, --version`  show program's version number and exit  
    `-c FILE, --config FILE`  Config file for runtime overrides  
-   `-b PATH, --base-dir PATH`  Base directory (Default: /mnt/VmBackup)  
-   `-d PATH, --backup-dir PATH`  Backups directory (Default: /mnt/VmBackup/exports)  
+   `-d PATH, --backup-dir PATH`  Backups directory (Default: <VmBackup Path>/exports)  
    `-p, --pool-backup`  Backup Pool DB  
    `-H, --host-backup`  Backup Hosts in Pool (dom0)  
    `-l LEVEL, --log-level LEVEL`  Log Level (Default: info)  
@@ -158,18 +156,18 @@ Note that there are numerous combinations that may possibly conflict with each o
 ### Common cronjob examples
 
 Run backup once a week with no email report  
-`10 0 * * 6 /mnt/VmBackup/VmBackup.py >/dev/null 2>&1`
+`10 0 * * 6 <VmBackup Path>/VmBackup.py >/dev/null 2>&1`
 
 Run backup once a week and let cron send email report on every run  
-`10 0 * * 6 /mnt/VmBackup/VmBackup.py`
+`10 0 * * 6 <VmBackup Path>/VmBackup.py`
 
 Run backup once a week and let cron send email only if there are warnings or errors  
-`10 0 * * 6 /mnt/VmBackup/VmBackup.py -l warning`
+`10 0 * * 6 <VmBackup Path>/VmBackup.py -l warning`
 
 Run backup of all VMs nightly and backup pool metadata and hosts weekly with full report emailed by cron  
 ```
-  10 0 * * * /mnt/VmBackup/VmBackup.py
-  10 0 * * 6 /mnt/VmBackup/VmBackup.py -x '.*' -p -H
+  10 0 * * * <VmBackup Path>/VmBackup.py
+  10 0 * * 6 <VmBackup Path>/VmBackup.py -x '.*' -p -H
 ```
 
 #### Configuring SSMTP on XenServer to send you emails
