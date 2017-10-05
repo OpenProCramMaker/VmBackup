@@ -1,5 +1,13 @@
 # Changelog for VmBackup
 
+## v1.1.0 - 5 October 2017
+ - [enhancements]
+ 	* Removed redundant check for previous snapshot as not required if using `snapshot-list`/`snapshot-destroy`
+ - [new features]
+ 	* Auto-detects base directory based upon VmBackup.py run location
+ - [important notes]
+ 	* `base_dir` option is no longer configurable as it is no longer required
+
 ## v1.0.2 - 4 October 2017
  - [enhancements]
  	* Documentation update for sSMTP configuration
