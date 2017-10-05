@@ -21,7 +21,7 @@
 import logging, sys, argparse, datetime
 import vbconfig, vbhelper, vbservice
 
-version = '1.0.1'
+version = '1.0.2'
 
 def main():
 	server_name = h.get_server_name()
