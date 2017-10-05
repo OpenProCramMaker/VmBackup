@@ -1,5 +1,12 @@
 # Changelog for VmBackup
 
+## v1.0.2 - ?? October 2017
+ - [enhancements]
+ 	* Documentation update for sSMTP configuration
+	* Minor Documentation updates for clarification/typos
+	* Removed pool-db-backup check if running on master (no longer required)
+	* Removed unused method and params
+
 ## v1.0.1 - 2 October 2017
  - [bugs]
 	* Fixed issue with multiple hosts for host-backup
