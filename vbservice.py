@@ -236,40 +236,36 @@ class XenLocalService(Service):
 		error_cnt = 0
 		warning_cnt = 0
 
-		if not self.is_master():
-			self.logger.error('(!) Unable to backup pool db: Must be run on master.')
-			error_cnt += 1
-		else:
-			path = join(backup_dir, 'POOL_DB')
-			if self.h.verify_path(path):
-				backup_file = '{}/metadata_{}.db'.format(path, self.h.get_date_string())
-				self.logger.debug('(i) Backup file: {}'.format(backup_file))
+		path = join(backup_dir, 'POOL_DB')
+		if self.h.verify_path(path):
+			backup_file = '{}/metadata_{}.db'.format(path, self.h.get_date_string())
+			self.logger.debug('(i) Backup file: {}'.format(backup_file))
 
-				# Backing up pool DB
-				self.logger.info('-> Backing up pool db')
-				cmd = 'pool-dump-database file-name="{}"'.format(backup_file)
-				if not self._run_xe_cmd(cmd):
-					self.logger.error('(!) Failed to backup pool db')
-					error_cnt += 1
-				else:
-					success_cnt += 1
-
-					# Remove old backups based on retention
-					self.logger.info('-> Rotating backups')
-					if not self.h.rotate_backups(max, path, False):
-						self.logger.warning('(!) Failed to cleanup old backups')
-						# Non-fatal so only warning as backup completed but cleanup failed
-						warning_cnt += 1
-			else:
-				self.logger.critical('(!) Unable to create backup directory: {}'.format(path))
+			# Backing up pool DB
+			self.logger.info('-> Backing up pool db')
+			cmd = 'pool-dump-database file-name="{}"'.format(backup_file)
+			if not self._run_xe_cmd(cmd):
+				self.logger.error('(!) Failed to backup pool db')
 				error_cnt += 1
+			else:
+				success_cnt += 1
 
-		# Pool DB Backup Summary
-		end_time = datetime.datetime.now()
-		elapsed = self.h.get_elapsed(begin_time, end_time)
-		backup_file_size = self.h.get_file_size(backup_file)
-		self.logger.info('*************************')
-		self.logger.info('POOL-DB-BACKUP completed at {} - time:{} size:{}'.format(self.h.get_time_string(end_time), elapsed, backup_file_size))
+				# Remove old backups based on retention
+				self.logger.info('-> Rotating backups')
+				if not self.h.rotate_backups(max, path, False):
+					self.logger.warning('(!) Failed to cleanup old backups')
+					# Non-fatal so only warning as backup completed but cleanup failed
+					warning_cnt += 1
+
+			# Pool DB Backup Summary
+			end_time = datetime.datetime.now()
+			elapsed = self.h.get_elapsed(begin_time, end_time)
+			backup_file_size = self.h.get_file_size(backup_file)
+			self.logger.info('*************************')
+			self.logger.info('POOL-DB-BACKUP completed at {} - time:{} size:{}'.format(self.h.get_time_string(end_time), elapsed, backup_file_size))
+		else:
+			self.logger.critical('(!) Unable to create backup directory: {}'.format(path))
+			error_cnt += 1
 
 		# Report summary status
 		if warning_cnt > 0 and success_cnt > 0:
